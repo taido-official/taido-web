@@ -1,0 +1,444 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>TAIDO | 胎動 - Official Website</title>
+ 
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400&family=Helvetica+Neue:wght@300;400&display=swap" rel="stylesheet">
+
+ <style>
+   /* =========================================
+      CSS: Base Styles & Variables
+      ========================================= */
+   :root {
+     --black: #030303;
+     --white: #ffffff;
+     --text-gray: rgba(255, 255, 255, 0.6);
+     --border-color: rgba(255, 255, 255, 0.1);
+     --font-serif: 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+     --font-sans: 'Helvetica Neue', Arial, sans-serif;
+   }
+
+   * { margin: 0; padding: 0; box-sizing: border-box; }
+   html { scroll-behavior: smooth; }
+
+   ::-webkit-scrollbar { width: 8px; }
+   ::-webkit-scrollbar-track { background: var(--black); }
+   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+   ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+   body {
+     background-color: var(--black);
+     color: var(--white);
+     font-family: var(--font-serif);
+     letter-spacing: 0.15em;
+     line-height: 1.8;
+     overflow-x: hidden;
+   }
+
+   img { max-width: 100%; height: auto; display: block; }
+   a { text-decoration: none; color: inherit; }
+
+   .fade-in {
+     opacity: 0;
+     transform: translateY(30px);
+     transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+   }
+   .fade-in.is-visible {
+     opacity: 1;
+     transform: translateY(0);
+   }
+
+   .line-decorator {
+     width: 1px;
+     height: 80px;
+     background-color: var(--border-color);
+     margin: 0 auto 3rem;
+   }
+
+   /* =========================================
+      CSS: Header & Navigation
+      ========================================= */
+   .site-header {
+     position: fixed; top: 0; width: 100%; padding: 1.5rem 5%; z-index: 1000;
+     display: flex; justify-content: space-between; align-items: center;
+     background: linear-gradient(to bottom, rgba(3,3,3,0.8) 0%, rgba(3,3,3,0) 100%);
+   }
+
+   .header-logo-text {
+     font-family: var(--font-sans); font-size: 1.2rem; font-weight: 300;
+     letter-spacing: 0.3em; color: var(--white);
+   }
+
+   .desktop-nav { display: flex; align-items: center; gap: 2.5rem; }
+   .desktop-nav a {
+     font-family: var(--font-sans); font-size: 0.7rem; letter-spacing: 0.2em;
+     text-transform: uppercase; font-weight: 300; transition: opacity 0.3s;
+     color: var(--white);
+   }
+   .desktop-nav a:hover { opacity: 0.5; }
+   .shop-link { border: 1px solid var(--border-color); padding: 0.5rem 1.5rem; }
+   .shop-link:hover { border-color: var(--white); }
+
+   .menu-trigger {
+     display: none; background: none; border: none; cursor: pointer;
+     width: 30px; height: 20px; position: relative; z-index: 1001;
+   }
+   .menu-trigger span {
+     position: absolute; width: 100%; height: 1px; background-color: var(--white); transition: all 0.3s;
+   }
+   .menu-trigger span:first-child { top: 0; }
+   .menu-trigger span:last-child { bottom: 0; }
+   .menu-trigger.active span:first-child { transform: translateY(9px) rotate(45deg); }
+   .menu-trigger.active span:last-child { transform: translateY(-10px) rotate(-45deg); }
+
+   .mobile-menu {
+     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+     background: rgba(3, 3, 3, 0.98); z-index: 999;
+     display: flex; align-items: center; justify-content: center;
+     opacity: 0; visibility: hidden; transition: all 0.5s ease;
+   }
+   .mobile-menu.active { opacity: 1; visibility: visible; }
+   .mobile-nav-content ul { list-style: none; text-align: center; }
+   .mobile-nav-content li { margin: 2rem 0; }
+   .mobile-nav-content a { font-size: 1.2rem; letter-spacing: 0.2em; color: var(--white); }
+
+   @media (max-width: 900px) {
+     .desktop-nav { display: none; }
+     .menu-trigger { display: block; }
+   }
+
+   /* =========================================
+      CSS: Hero Section 
+      ========================================= */
+   .hero-static {
+     height: 100vh; width: 100%;
+     background-color: var(--black);
+     display: flex; align-items: center; justify-content: center;
+     position: relative; overflow: hidden;
+   }
+
+   .hero-canvas {
+     position: relative;
+     width: 100%; max-width: 500px;
+     filter: grayscale(15%) brightness(0.8) contrast(1.1); 
+     animation: gentleZoom 4s ease-out forwards;
+   }
+
+   .hero-model-img { width: 100%; height: auto; }
+
+   .hero-logo-img {
+     position: absolute;
+     top: 50%; left: 50%; transform: translate(-50%, -50%);
+     width: 90%;
+     filter: invert(1);
+     mix-blend-mode: screen; 
+     opacity: 0;
+     animation: fadeInLogo 2s ease-out 0.8s forwards;
+   }
+
+   @keyframes gentleZoom {
+     from { transform: scale(1.03); opacity: 0; }
+     to { transform: scale(1); opacity: 1; }
+   }
+   @keyframes fadeInLogo {
+     to { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+     from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+   }
+
+   /* =========================================
+      CSS: Concept Section
+      ========================================= */
+   .concept {
+     padding: 15vh 10%; text-align: center;
+     background: radial-gradient(circle, #151515 0%, #030303 100%);
+   }
+   .concept-inner { max-width: 800px; margin: 0 auto; }
+   .concept p, .concept h2, .concept h3 {
+     font-weight: 200; margin-bottom: 3rem; letter-spacing: 0.25em;
+   }
+   .concept h2 { font-size: clamp(1.2rem, 3vw, 1.8rem); }
+   .concept p { color: var(--text-gray); font-size: clamp(0.9rem, 2vw, 1.1rem); }
+   .highlight {
+     display: inline-block; border-bottom: 1px solid rgba(255,255,255,0.4);
+     padding-bottom: 10px; color: var(--white);
+   }
+   .brand-message {
+     margin-top: 5rem; font-size: clamp(1.5rem, 4vw, 2.5rem); letter-spacing: 0.3em; line-height: 1.6;
+   }
+
+   /* =========================================
+      CSS: Art Gallery
+      ========================================= */
+   .art-gallery { 
+     padding: 15vh 5%; max-width: 1400px; margin: 0 auto;
+     border-top: 1px solid var(--border-color);
+   }
+   .section-title {
+     font-family: var(--font-sans); font-size: 0.8rem; font-weight: 300;
+     letter-spacing: 0.3em; text-transform: uppercase; text-align: center;
+     margin-bottom: 1rem; color: var(--text-gray);
+   }
+   .section-desc {
+     text-align: center; font-size: 0.8rem; color: var(--text-gray);
+     margin-bottom: 4rem; letter-spacing: 0.1em;
+   }
+
+   .gallery-posts {
+     display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+   }
+   @media (max-width: 1024px) { .gallery-posts { grid-template-columns: repeat(2, 1fr); } }
+   @media (max-width: 768px) { .gallery-posts { grid-template-columns: 1fr; } }
+
+   .post-item { display: block; transition: transform 0.4s ease; }
+   .post-item:hover { transform: translateY(-10px); }
+   .post-img-wrapper {
+     width: 100%; aspect-ratio: 4/5; overflow: hidden;
+     background-color: #0a0a0a; display: flex; align-items: center; justify-content: center;
+   }
+   .post-img {
+     width: 100%; height: 100%; object-fit: cover;
+     filter: grayscale(40%); transition: filter 0.4s, transform 0.8s ease;
+   }
+   .post-item:hover .post-img { filter: grayscale(0%); transform: scale(1.05); }
+   
+   .post-info { padding: 1.5rem 0; }
+   .post-date {
+     font-family: var(--font-sans); font-size: 0.7rem; color: var(--text-gray);
+     letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;
+   }
+   .post-title { font-size: 1rem; font-weight: 300; letter-spacing: 0.1em; }
+
+   .view-more { text-align: center; margin-top: 4rem; }
+   .view-more-btn {
+     font-family: var(--font-sans); font-size: 0.75rem; letter-spacing: 0.2em;
+     text-transform: uppercase; border-bottom: 1px solid var(--border-color);
+     padding-bottom: 5px; color: var(--text-gray); transition: color 0.3s, border-color 0.3s;
+   }
+   .view-more-btn:hover { color: var(--white); border-color: var(--white); }
+
+   /* =========================================
+      CSS: Lookbook
+      ========================================= */
+   .collection { padding: 15vh 5%; max-width: 1400px; margin: 0 auto; border-top: 1px solid var(--border-color); }
+   .lookbook-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+   @media (max-width: 768px) { .lookbook-grid { grid-template-columns: 1fr; } }
+   .lookbook-item { overflow: hidden; position: relative; }
+   .lookbook-item img {
+     width: 100%; aspect-ratio: 3/4; object-fit: cover; transition: transform 0.8s ease;
+   }
+   .lookbook-item:hover img { transform: scale(1.03); }
+   .item-caption { padding: 1rem 0; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--text-gray); }
+
+   /* =========================================
+      CSS: Footer & CTA
+      ========================================= */
+   .shop-cta { padding: 15vh 5%; text-align: center; border-top: 1px solid var(--border-color); }
+   .shop-btn-large {
+     display: inline-block; font-family: var(--font-sans); padding: 1.5rem 4rem;
+     border: 1px solid var(--border-color); font-size: 0.9rem; letter-spacing: 0.2em;
+     text-transform: uppercase; transition: all 0.4s ease; margin-top: 2rem; color: var(--white);
+   }
+   .shop-btn-large:hover { background-color: var(--white); color: var(--black); }
+
+   .footer {
+     padding: 50px 5%; text-align: center; border-top: 1px solid var(--border-color);
+     font-family: var(--font-sans); font-size: 0.7rem; letter-spacing: 0.2em;
+     color: var(--text-gray); display: flex; flex-direction: column; gap: 1rem;
+   }
+   .footer a:hover { color: var(--white); }
+ </style>
+</head>
+<body>
+
+ <!-- Header -->
+ <header class="site-header">
+   <a href="#" class="header-logo">
+     <span class="header-logo-text">TAIDO</span>
+   </a>
+   
+   <nav class="desktop-nav">
+     <a href="#concept">Concept</a>
+     <a href="#gallery">Art Gallery</a>
+     <a href="#lookbook">Lookbook</a>
+     <a href="https://taidomt.base.shop/" target="_blank" class="shop-link">Online Shop</a>
+   </nav>
+
+   <button class="menu-trigger" id="menu-trigger">
+     <span></span><span></span>
+   </button>
+ </header>
+
+ <div class="mobile-menu" id="mobile-menu">
+   <nav class="mobile-nav-content">
+     <ul>
+       <li><a href="#concept">Concept</a></li>
+       <li><a href="#gallery">Art Gallery</a></li>
+       <li><a href="#lookbook">Lookbook</a></li>
+       <li><a href="https://www.instagram.com/middletoe.taido?igsh=MWNhYWFzODVjcGM1NA%3D%3D&utm_source=qr" target="_blank">Instagram</a></li>
+       <li><a href="https://taidomt.base.shop/" target="_blank" class="shop-link">Online Shop</a></li>
+     </ul>
+   </nav>
+ </div>
+
+ <main>
+   <!-- =========================================
+        Hero Section 
+        ========================================= -->
+   <section class="hero-static">
+     <div class="hero-canvas">
+       <!-- 【書き換え箇所】モデル画像 -->
+       <img src="hero-model.jpg" alt="TAIDO Model" class="hero-model-img">
+       <!-- 【書き換え箇所】ロゴ画像 -->
+       <img src="logo.png" alt="Taido Logo" class="hero-logo-img">
+     </div>
+   </section>
+
+   <!-- =========================================
+        Concept Section
+        ========================================= -->
+   <section id="concept" class="concept">
+     <div class="concept-inner">
+       <div class="line-decorator fade-in"></div>
+       <h2 class="fade-in">至高の衣服とは何か。</h2>
+       <p class="fade-in">衣服は、良い生地や良いデザインの集合ではない。</p>
+       <p class="fade-in">それは、あなたを形成する最も外側の構造だ。</p>
+       <div style="height: 4rem;"></div>
+       <p class="fade-in">その最外殻に宿る、</p>
+       <h3 class="fade-in highlight">世界で最も自由な自己表現。</h3>
+       <div style="height: 4rem;"></div>
+       <p class="fade-in">小さな衝動と躍動が、</p>
+       <p class="fade-in">日常に、静かな非日常を生む。</p>
+       <div class="brand-message fade-in">TAIDOは、<br>至高の胎動を届ける。</div>
+     </div>
+   </section>
+
+   <!-- =========================================
+        Art Gallery Section 
+        ========================================= -->
+   <section id="gallery" class="art-gallery">
+     <h3 class="section-title fade-in">Art Gallery</h3>
+     <p class="section-desc fade-in">デザインプロセスの断片、インスピレーションの蓄積。</p>
+     
+     <div class="gallery-posts">
+       <!-- Gallery 1: パリの街並み -->
+       <a href="#" class="post-item fade-in">
+         <div class="post-img-wrapper">
+           <!-- 【書き換え箇所】パリの画像 -->
+           <img src="gallery-paris.png" alt="The Origin in Paris" class="post-img" loading="lazy">
+         </div>
+         <div class="post-info">
+           <span class="post-date">Archive 01</span>
+           <h4 class="post-title">The Origin in Paris</h4>
+         </div>
+       </a>
+       
+       <!-- Gallery 2: AI生成画像 -->
+       <a href="#" class="post-item fade-in" style="transition-delay: 0.1s;">
+         <div class="post-img-wrapper">
+           <!-- ※ここはAI生成のURLそのままなので、保存しなくても表示されます -->
+           <img src="http://googleusercontent.com/generated_image_content/0" alt="Silhouette and Shadows" class="post-img" loading="lazy">
+         </div>
+         <div class="post-info">
+           <span class="post-date">Archive 02</span>
+           <h4 class="post-title">Silhouette and Shadows</h4>
+         </div>
+       </a>
+
+       <!-- Gallery 3: マニフェスト画像 -->
+       <a href="#" class="post-item fade-in" style="transition-delay: 0.2s;">
+         <div class="post-img-wrapper">
+           <!-- 【書き換え箇所】コンセプト文章の画像 -->
+           <img src="gallery-concept.png" alt="Manifesto: Structure" class="post-img" loading="lazy">
+         </div>
+         <div class="post-info">
+           <span class="post-date">Archive 03</span>
+           <h4 class="post-title">Manifesto: Structure</h4>
+         </div>
+       </a>
+     </div>
+   </section>
+
+   <!-- =========================================
+        Lookbook Section
+        ========================================= -->
+   <section id="lookbook" class="collection">
+     <h3 class="section-title fade-in">Lookbook</h3>
+     
+     <div class="lookbook-grid">
+       <div class="lookbook-item fade-in">
+         <!-- 【書き換え箇所】Look01画像 -->
+         <img src="look01.jpg" alt="TAIDO Look 01" loading="lazy">
+         <div class="item-caption">Look 01: Lace Panel Structure</div>
+       </div>
+       
+       <div class="lookbook-item fade-in" style="transition-delay: 0.2s;">
+         <!-- 【書き換え箇所】Look02画像 -->
+         <img src="look02.jpg" alt="TAIDO Look 02" loading="lazy">
+         <div class="item-caption">Look 02: Classic Overcoat / Denim</div>
+       </div>
+     </div>
+   </section>
+
+   <!-- =========================================
+        Shop CTA Section
+        ========================================= -->
+   <section class="shop-cta fade-in">
+     <h2 style="font-weight: 200; letter-spacing: 0.2em; margin-bottom: 1rem;">The First Pulse</h2>
+     <p style="color: var(--text-gray); font-size: 0.8rem; letter-spacing: 0.2em;">至高の衣服を、あなたの手に。</p>
+     <a href="https://taidomt.base.shop/" target="_blank" class="shop-btn-large">
+       Visit Official Online Shop
+     </a>
+   </section>
+ </main>
+
+ <!-- Footer -->
+ <footer class="footer">
+   <div>
+     <a href="https://www.instagram.com/middletoe.taido?igsh=MWNhYWFzODVjcGM1NA%3D%3D&utm_source=qr" target="_blank">Instagram</a>
+     <span style="margin: 0 1rem; opacity: 0.3;">|</span>
+     <a href="https://taidomt.base.shop/" target="_blank">Online Shop</a>
+   </div>
+   <p>© 2026 TAIDO. A project by MiddleToe.</p>
+ </footer>
+
+ <!-- JavaScript -->
+ <script>
+   document.addEventListener('DOMContentLoaded', () => {
+     const trigger = document.getElementById('menu-trigger');
+     const menu = document.getElementById('mobile-menu');
+     const links = document.querySelectorAll('.mobile-nav-content a');
+
+     trigger.addEventListener('click', () => {
+       trigger.classList.toggle('active');
+       menu.classList.toggle('active');
+       document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : 'auto';
+     });
+
+     links.forEach(link => {
+       link.addEventListener('click', () => {
+         trigger.classList.remove('active');
+         menu.classList.remove('active');
+         document.body.style.overflow = 'auto';
+       });
+     });
+
+     const fadeElements = document.querySelectorAll('.fade-in');
+     const observer = new IntersectionObserver((entries, observer) => {
+       entries.forEach(entry => {
+         if (entry.isIntersecting) {
+           entry.target.classList.add('is-visible');
+           observer.unobserve(entry.target);
+         }
+       });
+     }, { threshold: 0.1 });
+
+     fadeElements.forEach(el => observer.observe(el));
+   });
+ </script>
+</body>
+</html>
